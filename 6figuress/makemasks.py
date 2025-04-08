@@ -28,8 +28,12 @@ def get_images(img_path, mask_path,contours_path):
     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     for c in contours:
         area = cv2.contourArea(c)
-        if area > 6000:
-        # if area > 1000 and area < 100_000:
+        x, y, w, h = cv2.boundingRect(c)
+        aspect_ratio = float(w) / h
+        size = 100
+        
+        if area > 10000 and (w > size and h > size) and (0.6 < aspect_ratio < 1.8):
+            # print(area, w, h, aspect_ratio)
             cv2.drawContours(img, c, -1, (0, 255, 0), 10)
     cv2.imwrite(mask_path, mask)
     cv2.imwrite(contours_path, img)
