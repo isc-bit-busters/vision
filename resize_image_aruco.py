@@ -1,8 +1,12 @@
 import cv2
 import numpy as np
 
-# path = "test_aruco1.jpg"
-path = "test_corner_aruco_big_all_playground.jpg"
+path = "image_more_aruco_playground_marta.jpg"
+
+margin_x = 0
+margin_y = 0
+
+marker_order = {2 : "top_left", 1 : "top_right", 3 : "bottom_left", 0 : "bottom_right"}
 
 image = cv2.imread(path)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -19,8 +23,6 @@ if ids is None or len(ids) < 4:
 
 ids = ids.flatten()
 
-marker_order = {2 : "top_left", 1 : "top_right", 3 : "bottom_left", 0 : "bottom_right"}
-
 marker_corners = {}
 # Extract marker corners based on ID
 for i, id in enumerate(ids):
@@ -34,17 +36,12 @@ if len(marker_corners) != 4:
     print("Not all required marker IDs were found.")
     exit(1)
 
-# Define source points in the order: top-left, top-right, bottom-right, bottom-left
 src_pts = np.array([
-    marker_corners["top_left"][0],       # top-left marker: top-left corner
-    marker_corners["top_right"][1],      # top-right marker: top-right corner
-    marker_corners["bottom_right"][2],   # bottom-right marker: bottom-right corner
-    marker_corners["bottom_left"][3]     # bottom-left marker: bottom-left corner
+    marker_corners["top_left"][0] - [margin_x, margin_y],
+    marker_corners["top_right"][1] + [margin_x, -margin_y],
+    marker_corners["bottom_right"][2] + [margin_x, margin_y],
+    marker_corners["bottom_left"][3] - [margin_x, -margin_y]
 ], dtype=np.float32)
-
-# # Define the desired width and height of the output image
-# width = 2800
-# height = 1000
 
 # Compute width as the average of top and bottom edge lengths
 width_top = np.linalg.norm(marker_corners["top_right"][1] - marker_corners["top_left"][0])
@@ -73,3 +70,6 @@ warped = cv2.warpPerspective(image, M, (width, height))
 cv2.imshow("Warped Image", warped)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
+# Save the warped image
+cv2.imwrite("warped_image.jpg", warped)
