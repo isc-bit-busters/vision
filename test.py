@@ -7,11 +7,11 @@ def get_walls(img_path):
     # Load the image
     polygons = []
     img = cv2.imread(img_path)
-
+    print(img.shape)
     # Convert the image to HSV color space
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    edges = cv2.Canny(hsv, 80, 150, apertureSize=3)
+    edges = cv2.Canny(hsv, 150, 150, apertureSize=3)
 
     # Dilate the edges to join nearby edges
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
@@ -35,11 +35,11 @@ def get_walls(img_path):
     for line in lines:
         x1, y1, x2, y2 = line[0]
         polygons.append([x1, y1, x2, y2])
+
         cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
 
     # Resize the image for display purposes
-    img = cv2.resize(img, (640, 480))
     
     # Display the results
     cv2.imshow('Edges', cv2.resize(edges, (640, 480)))
@@ -52,4 +52,23 @@ def get_walls(img_path):
     return polygons
 
 # Call the function with your image path
-get_walls("img/warped_image3.jpg")
+pol = get_walls("img/warped_image3.jpg")
+# Remove similar polygons
+print(len(pol))
+unique_polygons = []
+for p in pol:
+    if not any(abs(p[0] - up[0]) < 100 and abs(p[1] - up[1]) < 100 and abs(p[2] - up[2]) < 200 and abs(p[3] - up[3]) < 200 for up in unique_polygons):
+        unique_polygons.append(p)
+print(len(unique_polygons)) 
+print(unique_polygons)
+#plot the unique polygons
+# Create a blank image to draw rectangles
+output_img = np.zeros((671, 2211, 3), dtype=np.uint8)
+
+for p in unique_polygons:
+    cv2.rectangle(output_img, (p[0], p[1]), (p[2], p[3]), (0, 0, 255), 2)  # Draw rectangles in red
+
+# Display the result
+cv2.imshow('Unique Polygons', output_img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
