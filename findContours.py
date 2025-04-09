@@ -15,6 +15,8 @@ dilated = cv2.dilate(edges, kernel, iterations=1)
 
 contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 print(f"Image shape: {image.shape}")
+# Draw a line on the image
+
 points = []
 for c in contours:
     area   = cv2.contourArea(c)
@@ -77,36 +79,40 @@ def filter_pointsteest(points, end,start):
         if p[1] >= end*(image.shape[0]//2) and p[1] <= start*(image.shape[0] // 2):
             
                 selected_points.append(p)
-    # new_points = []
-    # for s in selected_points: 
-    #     if s[1] < 850 and s[1] > 200:
-    #         new_points.append(s)
-    # selected_points = new_points
-                    
-    mean_x = np.median([pt[1] for pt in selected_points])
+    new_points = []
+    for s in selected_points: 
+        if s[1] < 900 and s[1] > 350:
+            new_points.append(s)
+    selected_points = new_points
+            
+    mean_x = np.mean([pt[1] for pt in selected_points])
     print(f"Median X: {mean_x}")
       
-    selected_points = sorted(selected_points, key=lambda pt: abs(pt[1] - mean_x))
+    selected_points = sorted(selected_points, key=lambda pt: abs(pt[0] - mean_x))
     print(f"Selected points: {selected_points}")
 
     # filtered_points = []
     # for pt in selected_points:
-    #     if not any(abs(pt[0] - fp[0]) < 100 for fp in filtered_points):
+    #     if not any(abs(pt[0] - fp[0]) < 10 for fp in filtered_points):
     #         filtered_points.append(pt)
     # selected_points = filtered_points[:9]
     # print(f"Filtered points: {selected_points}")
-        # Remove points that are too distant from the mean X value
+    #     # Remove points that are too distant from the mean X value
+        # Group points by their y-coordinate
+
+
     for p in selected_points:
-        threshold_distance = 90 # Adjust this threshold as needed
+        threshold_distance = 30 # Adjust this threshold as needed
     
     
         new_selected_points = [pt for pt in selected_points if abs(pt[1] - mean_x) <= threshold_distance]
         selected_points = new_selected_points
-        selected_points = sorted(selected_points, key=lambda pt: pt[0])
+        selected_points = sorted(selected_points, key=lambda pt: pt[1])
     for s in selected_points:
         cv2.circle(image, s, 5, (255, 0, 0), -1)  # Draw a point at the center of the bounding box
         print(
             f"Selected point located at x: {s[0]}, y: {s[1]}")
+        
     return selected_points
 
 def find_walls(selected_points):
