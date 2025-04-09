@@ -2,12 +2,12 @@ import cv2
 import numpy as np
 
 # path = "test_aruco1.jpg"
-path = "test_corner_aruco.jpg"
+path = "test_corner_aruco_big_all_playground.jpg"
 
 image = cv2.imread(path)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_250)
 parameters = cv2.aruco.DetectorParameters()
 
 detector = cv2.aruco.ArucoDetector(aruco_dict, parameters)
@@ -19,7 +19,7 @@ if ids is None or len(ids) < 4:
 
 ids = ids.flatten()
 
-marker_order = {3 : "top_left", 0 : "top_right", 2 : "bottom_left", 1 : "bottom_right"}
+marker_order = {2 : "top_left", 1 : "top_right", 3 : "bottom_left", 0 : "bottom_right"}
 
 marker_corners = {}
 # Extract marker corners based on ID
@@ -42,9 +42,19 @@ src_pts = np.array([
     marker_corners["bottom_left"][3]     # bottom-left marker: bottom-left corner
 ], dtype=np.float32)
 
-# Define the desired width and height of the output image
-width = 500
-height = 300
+# # Define the desired width and height of the output image
+# width = 2800
+# height = 1000
+
+# Compute width as the average of top and bottom edge lengths
+width_top = np.linalg.norm(marker_corners["top_right"][1] - marker_corners["top_left"][0])
+width_bottom = np.linalg.norm(marker_corners["bottom_right"][2] - marker_corners["bottom_left"][3])
+width = int(max(width_top, width_bottom))
+
+# Compute height as the average of left and right edge lengths
+height_left = np.linalg.norm(marker_corners["bottom_left"][3] - marker_corners["top_left"][0])
+height_right = np.linalg.norm(marker_corners["bottom_right"][2] - marker_corners["top_right"][1])
+height = int(max(height_left, height_right))
 
 dst_pts = np.array([
     [0, 0],

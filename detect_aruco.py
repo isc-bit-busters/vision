@@ -1,12 +1,14 @@
 import cv2
 
 # path = "test_aruco1.jpg"
-path = "test_corner_aruco.jpg"
+# path = "test_corner_aruco.jpg"
+path = "test_corner_aruco_big_all_playground.jpg"
+# path = "test_corner_aruco_smaller_playground.jpg"
 
 image = cv2.imread(path)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_250)
 parameters = cv2.aruco.DetectorParameters()
 
 detector = cv2.aruco.ArucoDetector(aruco_dict, parameters)
