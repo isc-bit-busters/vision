@@ -39,7 +39,7 @@ def get_walls(img_path):
         cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
     unique_polygons = []
     for p in polygons:
-        if not any(abs(p[0] - up[0]) < 100 and abs(p[1] - up[1]) < 100 and abs(p[2] - up[2]) < 200 and abs(p[3] - up[3]) < 200 for up in unique_polygons):
+        if not any(abs(p[0] - up[0]) < 100 and abs(p[1] - up[1]) < 100 and abs(p[2] - up[2]) < 150 and abs(p[3] - up[3]) < 150 for up in unique_polygons):
             unique_polygons.append(p)
 
     # Resize the image for display purposes
