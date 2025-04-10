@@ -57,8 +57,19 @@ def get_walls(img_path):
 
     output_img = np.zeros(img.shape, dtype=np.uint8)
 
+    # Make it so the first point is always the top left corner and the last point is always the bottom right corner
+    for i in range(len(unique_polygons)):
+        if unique_polygons[i][0] > unique_polygons[i][2]:
+            unique_polygons[i][0], unique_polygons[i][2] = unique_polygons[i][2], unique_polygons[i][0]
+        if unique_polygons[i][1] > unique_polygons[i][3]:
+            unique_polygons[i][1], unique_polygons[i][3] = unique_polygons[i][3], unique_polygons[i][1]
+
     for p in unique_polygons:
         cv2.rectangle(output_img, (p[0], p[1]), (p[2], p[3]), (0, 0, 255), 2)  # Draw rectangles in red
+        cv2.circle(output_img, (p[0], p[1]), 5, (255, 0, 0), -1)
+        cv2.circle(output_img, (p[2], p[3]), 5, (0, 255, 0), -1)
+        
+    np.array(unique_polygons).tofile("polygons.txt")
 
     # Display the result
     cv2.imshow('Unique Polygons', output_img)
