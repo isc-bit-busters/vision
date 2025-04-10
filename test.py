@@ -27,13 +27,13 @@ def get_walls(img_path):
     min_area = 500
 
     # Filter out contours that are too small
-    filtered_contours = [contour for contour in contours if cv2.contourArea(contour) > min_area and cv2.contourArea(contour) < 10000]
+    filtered_contours = [contour for contour in contours if cv2.contourArea(contour) > min_area and cv2.contourArea(contour) < 1000]
 
     # Draw rectangles around the filtered contours
     for contour in filtered_contours:
         x, y, w, h = cv2.boundingRect(contour)
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)  # Draw rectangles in blue
-    lines = cv2.HoughLinesP(dilated_edges, 1, np.pi/180, threshold=100, minLineLength=130, maxLineGap=15)
+    lines = cv2.HoughLinesP(dilated_edges, 1, np.pi/180, threshold=100, minLineLength=50, maxLineGap=3)
     if lines is not None:
         for line in lines:
             x1, y1, x2, y2 = line[0]
@@ -122,10 +122,10 @@ def detect_cubes(image_path):
     return cube_positions
 
 # === Run detection ===
-cube_positions = detect_cubes("img/warped_image3.jpg")
-print("Cube positions (pixels):")
-for i, (x, y) in enumerate(cube_positions):
-    print(f"Cube {i+1}: x = {x}, y = {y}")
+# cube_positions = detect_cubes("img/warped_image3.jpg")
+# print("Cube positions (pixels):")
+# for i, (x, y) in enumerate(cube_positions):
+#     print(f"Cube {i+1}: x = {x}, y = {y}")
 
 # Call the function with your image path
-pol = get_walls("img/warped_image3.jpg")
+pol = get_walls("img/captured_image.jpg")
