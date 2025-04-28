@@ -3,6 +3,9 @@ import cv2
 camera_index = 4 # Change this index to test different cameras
 
 cap = cv2.VideoCapture(camera_index)
+#agmented camera view
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 if cap.isOpened():
     print(f"Camera found at index {camera_index}")
     ret, frame = cap.read()
