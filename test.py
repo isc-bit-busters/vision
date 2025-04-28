@@ -168,6 +168,9 @@ def test_get_walls(img_path):
 # test_get_walls("img/navmesh_image.jpg")
 # fonction to detect a color in the image
 def detect_walls(img_path):
+    # white color range 
+    polygons = []
+    #color_range = (np.array([0, 0, 200]), np.array([255, 255, 255]))  # White color range
     color_range = (np.array([15, 50, 50]), np.array([35, 255, 255]))  # Wider yellow range# Call the function with your image path and color range
 
     # Load the image
@@ -201,15 +204,36 @@ def detect_walls(img_path):
         for line in lines:
             x1, y1, x2, y2 = line[0]
             cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Draw lines in blue
+            print(f"Line detected: {x1}, {y1}, {x2}, {y2}")
+            polygons.append([x1, y1, x2, y2])
     # Display the results
-    cv2.imshow('Mask', cv2.resize(mask, (640, 480)))
+    # cv2.imshow('Mask', cv2.resize(mask, (640, 480)))
     cv2.imshow('Detected Color', img)
     cv2.imshow('Original Image', cv2.resize(cv2.imread(img_path), (640, 480)))
     #resize the image for display purposes
-    img = cv2.resize(img, (640, 480))
+    # img = cv2.resize(img, (640, 480))
     cv2.imshow('Detected Color', img)
+    output_img = np.zeros(img.shape, dtype=np.uint8)
+    # Make it so the first point is always the top left corner and the last point is always the bottom right corner
+    for i in range(len(polygons)):
+        if polygons[i][0] > polygons[i][2]:
+            polygons[i][0], polygons[i][2] = polygons[i][2], polygons[i][0]
+        if polygons[i][1] > polygons[i][3]:
+            polygons[i][1], polygons[i][3] = polygons[i][3], polygons[i][1]
+    # for p in polygons:
+    #     if not any(abs(p[0] - up[0]) < 100 and abs(p[1] - up[1]) < 100 and abs(p[2] - up[2]) < 70 and abs(p[3] - up[3]) < 70 for up in polygons):
+    #         polygons.append(p)
+    # draw polygons on output image
+    for p in polygons:
+        cv2.rectangle(output_img, (p[0], p[1]), (p[2], p[3]), (0, 0, 255), 2)  # Draw rectangles in red
+        cv2.circle(output_img, (p[0], p[1]), 5, (255, 0, 0), -1)
+        cv2.circle(output_img, (p[2], p[3]), 5, (0, 255, 0), -1)
+    # show output image
+    cv2.imshow('Output Image', output_img)
+    cv2.imshow('Image', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+    return polygons
 # # Example color range for yellow
-detect_walls("img/y3.jpg")
+print(detect_walls("img/y5.jpg"))
