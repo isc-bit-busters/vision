@@ -88,7 +88,7 @@ def get_walls(img_path):
     cv2.destroyAllWindows()
         
     return unique_polygons
-get_walls("img/maze1.jpeg")
+# get_walls("img/maze1.jpeg")
 
 
 def test_get_walls(img_path):
@@ -165,9 +165,11 @@ def test_get_walls(img_path):
     
 # Call the function with your image path
 # pol = get_walls("img/navmesh_image.jpg")
-test_get_walls("img/navmesh_image.jpg")
+# test_get_walls("img/navmesh_image.jpg")
 # fonction to detect a color in the image
-def detect_color(img_path, color_range):
+def detect_walls(img_path):
+    color_range = (np.array([15, 50, 50]), np.array([35, 255, 255]))  # Wider yellow range# Call the function with your image path and color range
+
     # Load the image
     img = cv2.imread(img_path)
     if img is None:
@@ -184,11 +186,10 @@ def detect_color(img_path, color_range):
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # Filter contours based on area
-    min_area = 200  # Adjust this value as needed
+    min_area = 1000  # Adjust this value as needed
     filtered_contours = [contour for contour in contours if cv2.contourArea(contour) > min_area]
     # filter mask to remove small areas
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
 
     # Draw rectangles around the detected areas
     for contour in filtered_contours:
@@ -211,5 +212,4 @@ def detect_color(img_path, color_range):
     cv2.destroyAllWindows()
 
 # # Example color range for yellow
-yellow_range = (np.array([15, 50, 50]), np.array([35, 255, 255]))  # Wider yellow range# Call the function with your image path and color range
-detect_color("img/yellow.jpg", yellow_range)
+detect_walls("img/y3.jpg")
