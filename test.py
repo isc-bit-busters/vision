@@ -228,18 +228,37 @@ def detect_walls(img_path, color_range):
 import cv2
 import numpy as np
 
-def detect_walls(img_path, color_range):
+def detect_walls(img_path):
     # Load the image
     img = cv2.imread(img_path)
+    #add a filter  to the image 
+    # Load calibration data from .npz file
+    # calibration_data = np.load("camera_calibration.npz")
+    # mtx = calibration_data['camera_matrix'].copy()
+    # dist = calibration_data['dist_coeffs'].copy()
+    # h = img.shape[0]
+    # w = img.shape[1]
+    # print(h, w)
+    # newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+    # # undistort the image
+    # # Undistort the image using the calibration data
+    # img = cv2.undistort(img, mtx, dist, None, newcameramtx)
+
     if img is None:
         print(f"Error: Could not open or read image at {img_path}")
         return []
+    lower_red1 = np.array([0, 100, 100])
+    upper_red1 = np.array([10, 255, 255])
+    lower_red2 = np.array([160, 100, 100])
+    upper_red2 = np.array([180, 255, 255])
 
     # Convert the image to HSV color space
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    mask = cv2.bitwise_or(mask1, mask2)
 
     # Create a mask for the specified color range
-    mask = cv2.inRange(hsv, color_range[0], color_range[1])
 
     # Find contours in the mask
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -277,21 +296,14 @@ def detect_walls(img_path, color_range):
         cv2.circle(output_img, (p[2], p[3]), 5, (0, 255, 0), -1)
 
     # show output image
-    cv2.imshow('Output Image', output_img)
-    cv2.imshow('Image', img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # cv2.imshow('Output Image', output_img)
+    # cv2.imshow('Image', img)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     return polygons
 
-def get_red_walls(img_path):
-    red_range1 = (np.array([0, 100, 100]), np.array([10, 255, 255]))
-    red_range3 = (np.array([150, 50, 50]), np.array([180, 255, 255]))
 
-    # Test the function with different red color ranges
-    polygons = detect_walls(img_path, red_range1)
-    if len(polygons)<20:
-        polygons = detect_walls(img_path, red_range3)
 
-get_red_walls("img/red7.jpg")
-get_red_walls("img/red8.jpg")
+detect_walls("img/red9.jpg")
+detect_walls("img/red10.jpg")
