@@ -171,8 +171,10 @@ def detect_walls(img_path):
     # white color range 
     polygons = []
     #color_range = (np.array([0, 0, 200]), np.array([255, 255, 255]))  # White color range
-    color_range = (np.array([15, 50, 50]), np.array([35, 255, 255]))  # Wider yellow range# Call the function with your image path and color range
+    #color_range = (np.array([15, 50, 50]), np.array([35, 255, 255]))  # Wider yellow range# Call the function with your image path and color range
 
+    #red color range
+    color_range = (np.array([0, 100, 100]), np.array([10, 255, 255]))  # Red color range
     # Load the image
     img = cv2.imread(img_path)
     if img is None:
@@ -204,7 +206,6 @@ def detect_walls(img_path):
         for line in lines:
             x1, y1, x2, y2 = line[0]
             cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Draw lines in blue
-            print(f"Line detected: {x1}, {y1}, {x2}, {y2}")
             polygons.append([x1, y1, x2, y2])
     # Display the results
     # cv2.imshow('Mask', cv2.resize(mask, (640, 480)))
@@ -236,4 +237,4 @@ def detect_walls(img_path):
 
     return polygons
 # # Example color range for yellow
-print(detect_walls("img/y5.jpg"))
+detect_walls("img/red4.jpg")
