@@ -91,7 +91,7 @@ def get_walls(img_path):
 # get_walls("img/maze1.jpeg")
 
 
-def test_get_walls(img_path):
+def get_walls_adaptative(img_path):
     img = cv2.imread(img_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
@@ -160,77 +160,14 @@ def test_get_walls(img_path):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-# Call the function with your image path
 
-    
-# Call the function with your image path
-# pol = get_walls("img/navmesh_image.jpg")
-# test_get_walls("img/navmesh_image.jpg")
-# fonction to detect a color in the image
-import cv2
-import numpy as np
-
-def detect_walls(img_path, color_range):
-    # Load the image
-    img = cv2.imread(img_path)
-    if img is None:
-        print(f"Error: Could not open or read image at {img_path}")
-        return []
-
-    # Convert the image to HSV color space
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-    # Create a mask for the specified color range
-    mask = cv2.inRange(hsv, color_range[0], color_range[1])
-
-    # Find contours in the mask
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # Filter contours based on area
-    min_area = 1000  # Adjust this value as needed
-    filtered_contours = [contour for contour in contours if cv2.contourArea(contour) > min_area]
-
-    polygons = []
-    # Draw rectangles around the detected areas
-    for contour in filtered_contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)  # Draw rectangles in green
-
-    # detect lines in the image
-    lines = cv2.HoughLinesP(mask, 1, np.pi/180, threshold=120, minLineLength=100, maxLineGap=1.5)
-    if lines is not None:
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 2)  # Draw lines in blue
-            polygons.append([x1, y1, x2, y2])
-
-    output_img = np.zeros(img.shape, dtype=np.uint8)
-    # Make it so the first point is always the top left corner and the last point is always the bottom right corner
-    for i in range(len(polygons)):
-        if polygons[i][0] > polygons[i][2]:
-            polygons[i][0], polygons[i][2] = polygons[i][2], polygons[i][0]
-        if polygons[i][1] > polygons[i][3]:
-            polygons[i][1], polygons[i][3] = polygons[i][3], polygons[i][1]
-
-    # draw polygons on output image
-    for p in polygons:
-        cv2.rectangle(output_img, (p[0], p[1]), (p[2], p[3]), (0, 0, 255), 2)  # Draw rectangles in red
-        cv2.circle(output_img, (p[0], p[1]), 5, (255, 0, 0), -1)
-        cv2.circle(output_img, (p[2], p[3]), 5, (0, 255, 0), -1)
-
-    # show output image
-    cv2.imshow('Output Image', output_img)
-    cv2.imshow('Image', img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-    return polygons
-import cv2
-import numpy as np
 
 def detect_walls(img_path):
     # Load the image
     img = cv2.imread(img_path)
+    #resize img
+    img = cv2.resize(img, (1920, 1080), interpolation=cv2.INTER_CUBIC)
+
     #add a filter  to the image 
     # Load calibration data from .npz file
     # calibration_data = np.load("camera_calibration.npz")
@@ -251,7 +188,7 @@ def detect_walls(img_path):
     upper_red1 = np.array([10, 255, 255])
     lower_red2 = np.array([160, 100, 100])
     upper_red2 = np.array([180, 255, 255])
-
+   
     # Convert the image to HSV color space
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
@@ -288,22 +225,26 @@ def detect_walls(img_path):
             polygons[i][0], polygons[i][2] = polygons[i][2], polygons[i][0]
         if polygons[i][1] > polygons[i][3]:
             polygons[i][1], polygons[i][3] = polygons[i][3], polygons[i][1]
-
+    # Filter polygons that are too near
+    filtered_polygons = []
+    for p in polygons:
+        if not any(abs(p[0] - fp[0]) < 150 and abs(p[1] - fp[1]) < 150 and abs(p[2] - fp[2]) < 250 and abs(p[3] - fp[3]) < 250 for fp in filtered_polygons):
+            filtered_polygons.append(p)
+    polygons = filtered_polygons
     # draw polygons on output image
     for p in polygons:
         cv2.rectangle(output_img, (p[0], p[1]), (p[2], p[3]), (0, 0, 255), 2)  # Draw rectangles in red
         cv2.circle(output_img, (p[0], p[1]), 5, (255, 0, 0), -1)
         cv2.circle(output_img, (p[2], p[3]), 5, (0, 255, 0), -1)
 
-    # show output image
-    # cv2.imshow('Output Image', output_img)
-    # cv2.imshow('Image', img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    cv2.imshow('Output Image', output_img)
+    cv2.imshow('Image', img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
     return polygons
 
 
 
-detect_walls("img/red9.jpg")
+detect_walls("img/0_initial.jpg")
 detect_walls("img/red10.jpg")
