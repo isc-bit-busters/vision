@@ -243,8 +243,78 @@ def detect_walls(img_path):
     cv2.destroyAllWindows()
 
     return polygons
+import cv2
+import numpy as np
+
+import cv2
+import numpy as np
+
+def detect_cubes(img_path):
+    # Load the image
+    img = cv2.imread(img_path)
+    if img is None:
+        print(f"Error: Could not open or read image at {img_path}")
+        return
+
+    # Convert the image to HSV color space
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    kernel = np.ones((3, 3), np.uint8)
+
+    # Define the HSV range for black
+    lower_black = np.array([0, 0, 0])
+    upper_black = np.array([180, 255, 100])
+    mask = cv2.inRange(hsv, lower_black, upper_black)
+
+    # Add a mask to find white cubes
+    lower_white = np.array([0, 0, 200])
+    upper_white = np.array([180, 255, 255])
+    mask2 = cv2.inRange(hsv, lower_white, upper_white)
+
+    # Combine the masks
+    mask = cv2.bitwise_or(mask, mask2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+    # Invert the mask to make black areas white
+    inverted_mask = cv2.bitwise_not(mask)
+
+    # Create a blank white image
+    white_background = np.ones_like(img) * 255
+
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Filter contours based on area
+    min_area = 20  # Adjust this value as needed
+    max_area = 500
+    filtered_contours = [contour for contour in contours if min_area < cv2.contourArea(contour) < max_area]
+    # Draw all contours except the first
+    final_contours = []
+    for contour in filtered_contours[10:]:  # Skip the first contour
+        epsilon = 0.08 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+        # Filter for quadrilateral shapes
+        if len(approx) == 4 and cv2.isContourConvex(approx):
+            final_contours.append(approx)
+            cv2.drawContours(white_background, [approx], -1, (0, 255, 0), 3)
+    polygons = []
+    # draw a rectangle around the detected contours
+    for contour in final_contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        cv2.rectangle(white_background, (x, y), (x + w, y + h), (255, 0, 0), 2)  # Draw rectangles in blue    
+        polygons.append([x, y, x + w, y + h])
+    # Apply the inverted mask to the white background
+    result = cv2.bitwise_and(white_background, white_background, mask=inverted_mask)
+
+    # Show the result
+    cv2.imshow('Black Cubes as White', result)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    return polygons
 
 
+# Example usage
+detect_cubes("img/cubes2.jpg")
 
-detect_walls("img/0_initial.jpg")
-detect_walls("img/red10.jpg")
+
+# detect_walls("img/0_initial.jpg")
+# detect_walls("img/red10.jpg")
